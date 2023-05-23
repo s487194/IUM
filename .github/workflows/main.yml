@@ -10,31 +10,30 @@ on:
 jobs:
   train:
     runs-on: ubuntu-latest
-    container: 
-      image: docker://dockerfile
       
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
 
       - name: Docker-Build
-        run: docker build -t dockerfile .
-        
+        run: docker build -t my-docker-model .
+
       - name: Model Training
-        run: docker run -v ${PWD}:/ -e EPOCHS=${{ github.event.inputs.epochs }} dockerfile python train.py
+        run: docker run -e EPOCHS=${{ github.event.inputs.epochs }} my-docker-model python train.py
         
   evaluate:
     needs: [train]
     runs-on: ubuntu-latest
-    container:
-      image: docker://dockerfile
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
 
+      - name: Docker-Build
+        run: docker build -t my-docker-model .
+
       - name: Model Evaluation
-        run: docker run -v ${PWD}:/ dockerfile python evaluate.py
+        run: docker run my-docker-model python evaluate.py
         
   archive:
     needs: [evaluate]
