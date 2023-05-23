@@ -1,37 +1,51 @@
 name: model-training
 on:
-  workflow_dispatch
-  
+  workflow_dispatch:
+    inputs:
+      epochs:
+        description: 'Number of epochs'
+        required: true
+        default: '100'
 
 jobs:
   train:
     runs-on: ubuntu-latest
-    
+    container: 
+      image: docker://dockerfile
+      
     steps:
-      - name: Checkout-repo
+      - name: Checkout repo
         uses: actions/checkout@v2
-        
+
       - name: Docker-Build
         run: docker build -t dockerfile .
         
-      - name: train
-        run: docker run -v ${PWD}:/ dockerfile python train.py --param1 ${{ github.event.inputs.train_param1 }} --param2 ${{ github.event.inputs.train_param2 }}
-
-        
-      - name: docker-Run
-        run: docker run dockerfile ls -l ./
+      - name: Model Training
+        run: docker run -v ${PWD}:/ -e EPOCHS=${{ github.event.inputs.epochs }} dockerfile python train.py
         
   evaluate:
-    needs: train
+    needs: [train]
+    runs-on: ubuntu-latest
+    container:
+      image: docker://dockerfile
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Model Evaluation
+        run: docker run -v ${PWD}:/ dockerfile python evaluate.py
+        
+  archive:
+    needs: [evaluate]
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout-repo
-      uses: actions/checkout@v2
-
-    - name: Docker-Build
-      run: docker build -t dockerfile .
-
-    - name: prediction
-      run: docker run -v ${PWD}:/ dockerfile python evaluate.py
-
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      
+      - name: Archive model
+        uses: actions/upload-artifact@v2
+        with:
+          name: model
+          path: /classificationn_model.pt
