@@ -5,7 +5,7 @@ on:
 
 jobs:
   train:
-    runs-on: python:3.8-slim-buster
+    runs-on: ubuntu-latest
     
     steps:
       - name: Checkout-repo
@@ -15,14 +15,15 @@ jobs:
         run: docker build -t dockerfile .
         
       - name: train
-        run: docker run -v $
+        run: docker run -v ${PWD}:/ dockerfile python train.py --param1 ${{ github.event.inputs.train_param1 }} --param2 ${{ github.event.inputs.train_param2 }}
+
         
       - name: docker-Run
         run: docker run dockerfile ls -l ./
         
   evaluate:
     needs: train
-    runs-on: python:3.8-slim-buster
+    runs-on: ubuntu-latest
     
     steps:
     - name: Checkout-repo
@@ -32,5 +33,5 @@ jobs:
       run: docker build -t dockerfile .
 
     - name: prediction
-      run: docker run -v $
+      run: docker run -v ${PWD}:/ dockerfile python evaluate.py
 
