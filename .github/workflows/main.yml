@@ -33,7 +33,7 @@ jobs:
         run: docker build -t my-docker-model .
 
       - name: Model Evaluation
-        run: docker run my-docker-model python evaluate.py
+        run: docker run my-docker-model python prediction.py
         
   archive:
     needs: [evaluate]
