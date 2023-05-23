@@ -1,0 +1,36 @@
+name: model-training
+on:
+  workflow_dispatch
+  
+
+jobs:
+  train:
+    runs-on: python:3.8-slim-buster
+    
+    steps:
+      - name: Checkout-repo
+        uses: actions/checkout@v2
+        
+      - name: Docker-Build
+        run: docker build -t dockerfile .
+        
+      - name: train
+        run: docker run -v $
+        
+      - name: docker-Run
+        run: docker run dockerfile ls -l ./
+        
+  evaluate:
+    needs: train
+    runs-on: python:3.8-slim-buster
+    
+    steps:
+    - name: Checkout-repo
+      uses: actions/checkout@v2
+
+    - name: Docker-Build
+      run: docker build -t dockerfile .
+
+    - name: prediction
+      run: docker run -v $
+
